@@ -6,33 +6,33 @@ import re
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = 'your_secret_key'  # Required for flashing messages
+app.secret_key = 'another_secret_key'  # Required for flash messages
 db = SQLAlchemy(app)
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    firstname = db.Column(db.String(150), nullable=False)
-    lastname = db.Column(db.String(150), nullable=False)
+    first_name = db.Column(db.String(150), nullable=False)
+    last_name = db.Column(db.String(150), nullable=False)
     email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
 
 @app.route('/')
-def home():
+def index():
     return render_template('login.html')
 
 @app.route('/login', methods=['POST'])
 def login():
-    email = request.form.get('email')
-    password = request.form.get('password')
+    email = request.form['email']
+    password = request.form['password']
     user = User.query.filter_by(email=email).first()
     if user:
         if check_password_hash(user.password, password):
             return redirect(url_for('secret'))
         else:
-            flash('Invalid credentials')
+            flash('Invalid credentials.')
     else:
-        flash('Email does not exist. Please register first.')
-    return redirect(url_for('home'))
+        flash('Email not found. Please register.')
+    return redirect(url_for('index'))
 
 @app.route('/signup')
 def signup():
@@ -40,28 +40,27 @@ def signup():
 
 @app.route('/signup', methods=['POST'])
 def signup_post():
-    email = request.form.get('email')
+    email = request.form['email']
     existing_user = User.query.filter_by(email=email).first()
     if existing_user:
-        flash('Email address already exists')
+        flash('This email is already registered.')
         return redirect(url_for('signup'))
     
-    firstname = request.form.get('firstname')
-    lastname = request.form.get('lastname')
-    password = request.form.get('password')
-    confirm_password = request.form.get('confirm_password')
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    password = request.form['password']
+    confirm_password = request.form['confirm_password']
     
-    # Check password strength
     if not re.match(r'^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[\W_]).{8,}$', password):
-        flash('Password must contain at least one special character, one capital letter, one small letter, and one number.')
+        flash('Password must have at least one special character, one uppercase letter, one lowercase letter, and one number.')
         return redirect(url_for('signup'))
 
     if password != confirm_password:
-        flash('Passwords do not match')
+        flash('Passwords do not match.')
         return redirect(url_for('signup'))
     
     hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
-    new_user = User(firstname=firstname, lastname=lastname, email=email, password=hashed_password)
+    new_user = User(first_name=first_name, last_name=last_name, email=email, password=hashed_password)
     
     db.session.add(new_user)
     db.session.commit()

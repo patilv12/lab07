@@ -1,15 +1,20 @@
-
+<!-- templates/thankyou.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Thank You</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Thank You for Registering!</h2>
-        <p>Your registration was successful.</p>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">Thank You!</h2>
+                <p class="card-text">You have successfully registered.</p>
+            </div>
+        </div>
     </div>
 </body>
 </html>
